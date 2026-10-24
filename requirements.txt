@@ -3,3 +3,4 @@ bandit>=1.7
 pytest>=7
 # optional, only for --provider anthropic:
 # anthropic>=0.40
+flask>=3

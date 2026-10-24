@@ -76,6 +76,9 @@ With `--provider offline` (default) triage, patching and review use deterministi
 
 Building this benchmark exposed two weaknesses in the first version of our own verifier (a case-sensitive leak check that missed an upper-casing function, and an integrity check that compared against benign expected outputs). Both were fixed and are covered by the benchmark.
 
+## Mission Control (web dashboard)
+`python -m patchsentinel.webapp` then open http://127.0.0.1:5057. Live agent pipeline, per-alert evidence gates, diffs, role-checked approval, audit-chain badge and ROI sliders. It reads the engine's own audit log, so the verified engine is unchanged. Works offline with no API key.
+
 ## Responsible AI and governance
 | Control | Implementation |
 |---|---|

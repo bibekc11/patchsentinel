@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PatchSentinel · Mission Control</title>
+<style>
+:root{--bg:#070b14;--p:#0e1526;--p2:#131c33;--ln:#22304f;--tx:#e6ecfa;--mu:#8393b8;--ac:#5eead4;--ac2:#818cf8;--ok:#34d399;--bad:#fb7185;--wn:#fbbf24;font-family:Inter,system-ui,Segoe UI,sans-serif}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(1200px 600px at 10% -10%,#1b2a5a55,transparent),radial-gradient(900px 500px at 100% 0,#0f766e33,transparent),var(--bg);color:var(--tx);min-height:100vh}
+header{display:flex;align-items:center;gap:16px;padding:14px 24px;border-bottom:1px solid var(--ln);backdrop-filter:blur(8px);position:sticky;top:0;z-index:5;background:#070b14cc}
+.logo{font-weight:800;letter-spacing:.3px;font-size:18px}.logo b{background:linear-gradient(90deg,var(--ac),var(--ac2));-webkit-background-clip:text;color:transparent}
+.tag{font-size:11px;color:var(--mu);border:1px solid var(--ln);padding:3px 9px;border-radius:99px}.sp{flex:1}
+select,input,button{background:var(--p2);color:var(--tx);border:1px solid var(--ln);border-radius:10px;padding:8px 12px;font:inherit;font-size:13px}
+button{cursor:pointer;transition:.15s}button:hover{border-color:var(--ac)}button.go{background:linear-gradient(90deg,var(--ac),var(--ac2));color:#04121a;font-weight:700;border:0}button:disabled{opacity:.5;cursor:wait}
+main{display:grid;grid-template-columns:1.55fr 1fr;gap:16px;padding:18px 24px;max-width:1500px;margin:auto}
+.card{background:linear-gradient(180deg,var(--p),#0b1222);border:1px solid var(--ln);border-radius:16px;padding:16px}
+h3{margin:0 0 12px;font-size:12px;text-transform:uppercase;letter-spacing:1.4px;color:var(--mu);font-weight:600}
+.kpis{grid-column:1/-1;display:grid;grid-template-columns:repeat(6,1fr);gap:12px}.k{padding:14px 16px}.k .v{font-size:30px;font-weight:800;font-variant-numeric:tabular-nums}.k .l{font-size:11px;color:var(--mu);margin-top:2px}
+#pipe{width:100%;height:92px}.nd rect{fill:var(--p2);stroke:var(--ln);transition:.3s}.nd text{fill:var(--mu);font-size:11px;text-anchor:middle}.nd.on rect{stroke:var(--ac);fill:#0f2a33;filter:drop-shadow(0 0 8px #5eead488)}.nd.on text{fill:var(--tx)}.nd.bad rect{stroke:var(--bad);fill:#33141c}.ln{stroke:var(--ln);stroke-width:2}
+.al{border:1px solid var(--ln);border-radius:12px;margin-bottom:10px;background:var(--p2);overflow:hidden;animation:in .35s}@keyframes in{from{opacity:0;transform:translateY(8px)}}
+.ah{display:flex;align-items:center;gap:10px;padding:11px 14px;cursor:pointer}.ah code{color:var(--ac);font-size:12px}.ah .fn{font-weight:600}.ah .rs{color:var(--mu);font-size:12px}
+.chip{font-size:11px;padding:3px 10px;border-radius:99px;font-weight:600;white-space:nowrap}.c-ok{background:#064e3b;color:var(--ok)}.c-bad{background:#4c0519;color:var(--bad)}.c-wn{background:#422006;color:var(--wn)}.c-in{background:#1e1b4b;color:var(--ac2)}
+.body{display:none;padding:0 14px 14px}.al.open .body{display:block}
+.gates{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:6px 0 12px}.g{border:1px solid var(--ln);border-radius:10px;padding:8px 10px;font-size:12px}.g b{display:block;font-size:11px;margin-bottom:2px}.g.p{border-color:#065f46;background:#06261f}.g.p b{color:var(--ok)}.g.f{border-color:#7f1d1d;background:#2a0f16}.g.f b{color:var(--bad)}.g span{color:var(--mu);font-size:11px;display:block;max-height:34px;overflow:hidden}
+pre{margin:0;background:#050810;border:1px solid var(--ln);border-radius:10px;padding:10px;font-size:12px;overflow:auto;max-height:230px}.a{color:var(--ok)}.d{color:var(--bad)}
+.act{display:flex;gap:8px;margin-top:10px;align-items:center;flex-wrap:wrap}.act .go{padding:7px 14px}
+#feed{height:360px;overflow:auto;font:11.5px ui-monospace,Consolas,monospace}.ev{padding:5px 0;border-bottom:1px dashed #1a2540;animation:in .3s}.ev i{color:var(--ac2);font-style:normal}.ev u{color:var(--mu);text-decoration:none}
+.badge{display:inline-flex;gap:6px;align-items:center;font-size:12px}.dot{width:8px;height:8px;border-radius:50%;background:var(--mu)}.dot.ok{background:var(--ok);box-shadow:0 0 10px var(--ok)}.dot.bad{background:var(--bad)}
+.sl{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--mu);margin:8px 0}.sl input{flex:1;accent-color:var(--ac)}.big{font-size:34px;font-weight:800;background:linear-gradient(90deg,var(--ac),var(--ac2));-webkit-background-clip:text;color:transparent}
+.note{font-size:11px;color:var(--mu);line-height:1.5}.err{color:var(--bad);font-size:13px;padding:8px}
+@media(max-width:1000px){main{grid-template-columns:1fr}.kpis{grid-template-columns:repeat(3,1fr)}}
+</style></head><body>
+<header><div class="logo">Patch<b>Sentinel</b></div><span class="tag">Mission Control · IT Infrastructure</span><div class="sp"></div>
+<span class="badge" id="chain"><i class="dot"></i><span>audit chain: –</span></span>
+<select id="prov"><option value="offline">offline rules (reproducible)</option><option value="anthropic">Anthropic model</option><option value="openai">OpenAI-compatible</option></select>
+<label class="tag"><input type="checkbox" id="demo" checked style="padding:0"> inject adversarial patches</label>
+<button class="go" id="run">▶ Run remediation</button></header>
+<main>
+<section class="kpis" id="kpis"></section>
+<section class="card" style="grid-column:1/-1"><h3>Agent pipeline · live</h3>
+<svg id="pipe" viewBox="0 0 1000 92"></svg></section>
+<section class="card"><h3>Alerts · evidence per fix <span id="cnt" style="float:right"></span></h3><div id="alerts"><div class="note">Press <b>Run remediation</b>. Every alert goes: triage → exploit must fail before → patch → six deterministic gates → independent review → human approval. Nothing is auto-merged.</div></div><div id="err" class="err"></div></section>
+<aside style="display:grid;gap:16px;align-content:start">
+<section class="card"><h3>Reviewer identity (role-based access)</h3>
+<div class="act" style="margin:0"><input id="who" value="Your Name" style="flex:1"><select id="role"><option>reviewer</option><option>admin</option><option>viewer</option></select></div>
+<div class="note" style="margin-top:8px">Try approving as <b>viewer</b>: the refusal is enforced server-side and written to the audit log.</div></section>
+<section class="card"><h3>AI → ROI (editable assumptions)</h3><div class="big" id="hrs">0 h</div><div class="note">analyst time avoided (estimate)</div>
+<div class="sl">manual fix <input type="range" id="fix" min="15" max="180" value="60"><b id="fixv">60m</b></div>
+<div class="sl">manual triage <input type="range" id="tri" min="5" max="60" value="15"><b id="triv">15m</b></div>
+<div class="note">Minutes are assumptions you set, not measured savings. Replace with your team's baseline.</div></section>
+<section class="card"><h3>Tamper-evident audit feed</h3><div id="feed"></div></section>
+</aside></main>
+<script>
+const $=s=>document.querySelector(s),ST={ok:['Verified · awaiting human','c-in'],approved:['Approved by human','c-ok'],declined:['Declined by human','c-wn'],rejected_false_positive:['False positive rejected','c-ok'],escalated:['Escalated to human','c-wn'],escalated_unreproducible:['Escalated · not reproducible','c-wn'],escalated_retries_exhausted:['Blocked · no safe fix','c-bad'],verified:['Verified · awaiting human','c-in']};
+const NODES=['Ingest','Triage','Exploit test','Patch','Verify','Review','Human','Branch'],EV={run_started:0,alert_received:0,triage:1,exploit_baseline:2,exploit_blocked:2,patch:3,verify:4,review:5,human_decision:6,approval_refused:6,branch_created:7};
+const GL={patched_file_compiles:'Compiles',exploit_blocked_after_patch:'Exploit blocked',benign_behaviour_preserved:'Behaviour kept',existing_tests_pass:'Tests green',scanner_clear:'Scanner clear',integrity:'Anti-gaming'};
+let S={results:[]},es,OPEN={};
+$('#pipe').innerHTML=NODES.map((n,i)=>{const x=20+i*122;return (i?`<line class="ln" x1="${x-22}" y1="46" x2="${x}" y2="46"/>`:'')+`<g class="nd" id="n${i}"><rect x="${x}" y="22" width="100" height="48" rx="12"/><text x="${x+50}" y="50">${n}</text></g>`}).join('');
+function lit(i,bad){document.querySelectorAll('.nd').forEach(n=>n.classList.remove('on','bad'));const e=$('#n'+i);e&&e.classList.add(bad?'bad':'on')}
+function feed(e){const d=e.data||{},t=EV[e.event];if(t!==undefined)lit(t,e.event=='approval_refused'||(e.event=='verify'&&!d.passed));
+ const msg=Object.entries(d).filter(([k])=>!['policy','checks','history'].includes(k)).map(([k,v])=>`${k}=${typeof v=='object'?JSON.stringify(v).slice(0,40):v}`).join(' ').slice(0,110);
+ const f=$('#feed');f.insertAdjacentHTML('beforeend',`<div class="ev"><i>#${e.seq} ${e.event}</i> ${msg}<br><u>sha256 ${e.hash.slice(0,16)}… ← ${e.prev.slice(0,8)}…</u></div>`);f.scrollTop=f.scrollHeight}
+async function poll(){const r=await (await fetch(`/api/state?fix=${$('#fix').value}&triage=${$('#tri').value}`)).json();S=r;draw();$('#err').textContent=r.error||'';return r}
+function kp(v,l,c){return `<div class="card k"><div class="v" style="color:${c}">${v}</div><div class="l">${l}</div></div>`}
+function draw(){const R=S.results,m=S.roi||{},c=f=>R.filter(f).length;
+ $('#kpis').innerHTML=kp(R.length,'alerts processed','var(--tx)')+kp(c(r=>['verified','approved','declined'].includes(r.status)),'fixes proven','var(--ok)')+kp(c(r=>r.status=='rejected_false_positive'),'false positives screened','var(--ac)')+kp(c(r=>r.status.startsWith('escalated')),'escalated / blocked','var(--wn)')+kp(c(r=>r.status=='approved'),'human-approved','var(--ac2)')+kp(((m.machine_minutes||0)).toFixed(1)+'m','machine time','var(--tx)');
+ $('#hrs').textContent=((m.analyst_minutes_avoided_estimate||0)/60).toFixed(1)+' h';$('#fixv').textContent=$('#fix').value+'m';$('#triv').textContent=$('#tri').value+'m';$('#cnt').textContent=S.running?'● running':'';
+ $('#alerts').innerHTML=R.map(r=>{const a=r.alert,s=ST[r.status]||[r.status,'c-in'],ck=r.checks||{},can=r.status=='verified';
+  return `<div class="al ${OPEN[a.id]?'open':''}"><div class="ah" onclick="OPEN['${a.id}']=!OPEN['${a.id}'];draw()"><code>${a.id}</code><span class="fn">${a.function}()</span><span class="rs">${a.rule_id} · ${a.file}:${a.line}</span><span class="sp"></span><span class="rs">${r.attempt||0} try</span><span class="chip ${s[1]}">${s[0]}</span></div>
+  <div class="body"><div class="note" style="margin-bottom:8px">${r.reason||''}</div>${Object.keys(ck).length?`<div class="gates">${Object.entries(ck).map(([k,v])=>`<div class="g ${v[0]?'p':'f'}"><b>${v[0]?'✓':'✗'} ${GL[k]||k}</b><span>${String(v[1]).replace(/</g,'&lt;')}</span></div>`).join('')}</div>`:''}
+  ${r.review?`<div class="note">Independent reviewer: <b>${r.review.approve?'approved':'rejected'}</b> ${(r.review.concerns||[]).join('; ')}</div>`:''}
+  ${r.diff?`<pre>${r.diff.replace(/</g,'&lt;').split('\n').map(l=>`<span class="${l[0]=='+'?'a':l[0]=='-'?'d':''}">${l}</span>`).join('\n')}</pre>`:''}
+  ${can?`<div class="act"><button class="go" onclick="decide('${a.id}',true)">Approve fix</button><button onclick="decide('${a.id}',false)">Decline</button></div>`:''}</div></div>`}).join('')||$('#alerts').innerHTML}
+async function decide(id,ok){const r=await fetch('/api/approve',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({alert:id,approve:ok,approver:$('#who').value,role:$('#role').value})});const j=await r.json();if(!r.ok)$('#err').textContent='⛔ '+j.error;else $('#err').textContent='';await poll();chain()}
+async function chain(){const j=await (await fetch('/api/verify')).json();$('#chain i').className='dot '+(j.ok?'ok':'bad');$('#chain span').textContent='audit chain: '+j.message}
+$('#run').onclick=async()=>{$('#run').disabled=true;$('#feed').innerHTML='';OPEN={};S={results:[]};draw();
+ const r=await fetch('/api/run',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({provider:$('#prov').value,demo:$('#demo').checked})});
+ if(!r.ok){$('#err').textContent='Could not start';$('#run').disabled=false;return}
+ es&&es.close();es=new EventSource('/api/events');es.onmessage=m=>{feed(JSON.parse(m.data));poll()};
+ es.addEventListener('done',async()=>{es.close();await poll();await chain();$('#run').disabled=false;lit(6)})};
+$('#fix').oninput=$('#tri').oninput=poll;draw();
+</script></body></html>
