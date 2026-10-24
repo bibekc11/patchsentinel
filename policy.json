@@ -1,0 +1,8 @@
+{
+  "scanners": ["bandit", "builtin"],
+  "ignore_rules": ["B101", "B404"],
+  "max_retries": 3,
+  "approver_roles": ["reviewer", "admin"],
+  "manual_fix_minutes": 60,
+  "manual_triage_minutes": 15
+}
